@@ -1,0 +1,81 @@
+# Edit the template parameters below to see how they will render in the scaffolder form UI
+apiVersion: scaffolder.backstage.io/v1beta3
+kind: Template
+metadata:
+  name: chatbot-rag-blueprint-template
+  title: creates a rag blueprint using llamastack with vllm
+  description: creates a rag blueprint using llamastack with vllm
+  tags:
+    - recommended
+    - java
+    - python
+    - ai
+    - rhoai
+    - rag
+    - rhtap
+spec:
+  owner: rhdh
+  type: service
+  # Edit the template parameters below to see how they will render in the scaffolder form UI
+  parameters:
+    - title: Choose a model
+      required:
+        - model
+      properties:
+        model:
+          title: model
+          type: string
+          default: ibm-granite/granite-3.2-8b-instruct
+          enum:
+          - meta-llama/Llama-3.2-3B-Instruct
+          - ibm-granite/granite-3.2-8b-instruct
+          description: choose your LLM model
+        owner:
+          title: Owner
+          type: string
+          description: Owner of the component
+          ui:field: OwnerPicker
+          ui:options:
+            catalogFilter:
+              kind: Group
+        Token:
+          title: Hugging Face Token
+          type: string
+          description: Enter your Hugging Face token
+        enbableGPUSupport:
+          title: Enable GPU Support 
+          type: boolean
+          # ui:widget: radio
+          description: defaults to cpu
+      dependencies:
+        enbableGPUSupport:
+          allOf:
+            - if:
+                properties: 
+                  enbableGPUSupport:
+                    const: true
+              then:
+                properties:
+                  createGPU:
+                    title: Create GPU
+                    type: boolean
+                    description: provision your own gpu
+    - title: Choose a location
+      required:
+        - repoUrl
+      properties:
+        repoUrl:
+          title: Repository Location
+          type: string
+          ui:field: RepoUrlPicker
+          ui:options:
+            allowedHosts:
+              - github.com
+  steps:
+    - id: fetch-base
+      name: Fetch Base
+      action: fetch:template
+      input:
+        url: ./template
+        values:
+          name: ${{parameters.name}}
