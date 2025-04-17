@@ -1,0 +1,14 @@
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: llamastsack-blueprint-for-rag
+  namespace: external-systems
+  description: LlamaStack blueprint for RAG
+spec:
+  type: service
+  lifecycle: experimental
+  owner: group:pet-managers
+  providesApis:
+    - petstore
+    - internal/streetlights
+    - hello-world
