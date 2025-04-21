@@ -7,3 +7,4 @@ spec:
   type: url
   targets:
     - scaffolder-templates/chatbot-rag-blueprint-template/template.yaml
+
