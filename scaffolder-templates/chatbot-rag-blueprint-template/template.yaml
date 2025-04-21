@@ -1,0 +1,186 @@
+# Edit the template parameters below to see how they will render in the scaffolder form UI
+apiVersion: scaffolder.backstage.io/v1beta3
+kind: Template
+# This template is used to create a chatbot rag blueprint using llamastack with vllm
+metadata:
+  name: chatbot-rag-blueprint-template
+  title: creates a rag blueprint using llamastack with vllm
+  description: creates a rag blueprint using llamastack with vllm
+  tags:
+    - recommended
+    - python
+    - ai
+    - rhoai
+    - rag
+    - rhtap
+spec:
+  owner: rhdh
+  type: service
+  # these are the steps which are rendered in the frontend with the form input
+  parameters:
+    - title: Provide Information for Application
+      required:
+        - component_id
+      properties:
+        component_id:
+          title: Name
+          type: string
+          description: Unique identifier for the component
+          default: chatbot-app
+          ui:field: EntityNamePicker
+          maxLength: 12
+      component_description:
+          title: Description
+          type: string
+          description: Description of the component
+          default: chatbot rag app
+    - title: Choose a model
+      required:
+        - model
+      properties:
+        model:
+          title: Model
+          type: string
+          description: choose your LLM model
+          default: ibm-granite/granite-3.2-8b-instruct
+          enum:
+          - meta-llama/Llama-3.2-3B-Instruct
+          - ibm-granite/granite-3.2-8b-instruct
+        owner:
+          title: Owner
+          type: string
+          description: Owner of the component
+          ui:field: OwnerPicker
+          ui:options:
+            catalogFilter:
+              kind: Group
+        Token:
+          title: Hugging Face Token
+          type: string
+          description: Enter your Hugging Face token
+        enbableGPUSupport:
+          title: Enable GPU Support 
+          type: boolean
+          # ui:widget: radio
+          description: defaults to cpu
+      dependencies:
+        enbableGPUSupport:
+          allOf:
+            - if:
+                properties: 
+                  enbableGPUSupport:
+                    const: true
+              then:
+                properties:
+                  createGPU:
+                    title: Create GPU
+                    type: boolean
+                    description: provision your own gpu
+    - title: Choose a location
+      required:
+        - repoUrl
+      properties:
+        repoUrl:
+          title: Repository Location
+          type: string
+          ui:field: RepoUrlPicker
+          ui:options:
+            allowedHosts:
+              - github.com
+              - gitlab-gitlab.apps.cluster-ftr6w.ftr6w.sandbox2472.opentlc.com
+       
+  # here's the steps that are executed in series in the scaffolder backend
+  steps:
+    - id: template
+      name: Fetch Sleleton + Template
+      action: fetch:template
+      input:
+        url: ./skeleton
+        values:
+          component_id: {{ '${{ parameters.component_id }}' }}
+          component_name: {{ '${{ parameters.component_name }}' }}
+          component_description: {{ '${{ parameters.component_description }}' }}
+          component_owner: {{ '${{ parameters.component_owner }}' }}
+          component_type: {{ '${{ parameters.component_type }}' }}
+          component_repoUrl: {{ '${{ parameters.repoUrl }}' }}
+          component_model: {{ '${{ parameters.component_model }}' }}
+          component_token: {{ '${{ parameters.component_token }}' }}
+          component_enbableGPUSupport: {{ '${{ parameters.component_enbableGPUSupport }}' }}
+          component_createGPU: {{ '${{ parameters.component_createGPU }}' }}
+    
+    - id: publish
+      name: Publish
+      action: publish:gitlab
+      input:
+        allowedHosts:
+          - gitlab-gitlab.apps.cluster-ftr6w.ftr6w.sandbox2472.opentlc.com
+        description: This is ${{ parameters.name }}
+        repoUrl: ${{ parameters.repoUrl }}
+        branch: main
+    
+    # - id: register
+    #   name: Register
+    #   action: catalog:register
+    #   input:
+    #     repoContentsUrl: ${{ steps['publish'].output.repoContentsUrl }}
+    #     catalogInfoPath: "/catalog-info.yaml"
+
+    - id: template-gitops-deployment
+      name: Generating Deployment Resources
+      action: fetch:template
+      input:
+        url: ./manifests
+        copyWithoutTemplating:
+          - '**/*.jinja'
+          - '**/*.jinja2'
+        values:
+          component_id: {{ '${{ parameters.component_id }}' }}
+          description: {{ '${{ parameters.description }}' }}
+          destination: https://{{ '${{ parameters.repo.host }}' }}/{{ '${{ parameters.repo.owner }}' }}/{{ '${{parameters.component_id}}' }}-gitops.git
+          source_repository: https://{{ '${{ parameters.repo.host }}' }}/{{ '${{ parameters.repo.owner }}' }}/{{ '${{parameters.component_id}}' }}.git
+          repository_name: {{ '${{parameters.component_id}}' }}
+          git_owner: {{ '${{ parameters.repo.owner }}' }}
+          cluster: {{ cluster_subdomain }}
+          namespace: "{{ '${{ parameters.component_id }}' }}-dev"
+          image_registry: {{ '${{ parameters.image_registry }}' }}
+          image_host: {{ '${{ parameters.image_host }}' }}
+          image_organization: {{ '${{ parameters.image_organization }}' }}
+          image_name: {{ '${{ parameters.component_id }}' }}
+          image_tag: {{ '${{ parameters.image_tag }}' }}
+          port: 8501
+          repository_host: {{ '${{ parameters.repo.host }}' }}
+          deployment_name: python-template
+          user: {{ '${{ user.entity.metadata.name }}' }}
+          verify_commits: {{ '${{ parameters.repo.verify_commits }}' }}
+          model_endpoint: {{ '${{ parameters.model_endpoint }}' }}
+          model_name: {{ '${{ parameters.model_name }}' }}
+          model_api_key: {{ '${{ parameters.model_api_key | default("NOT_SET") }}' }}
+        targetPath: ./tenant-gitops
+
+    - id: publish-gitops
+      name: Publish o Resource Repository
+      action: publish:gitlab
+      input:
+        repoUrl: ${{ parameters.repoUrl }}-gitops
+        title: gitops resources for {{ '${{ parameters.component_id }}' }}
+        description: gitops resources for {{ '${{ parameters.component_id }}' }}
+        sourcePath: ./tenant-gitops
+        repoVisibility: public
+
+    - id: create-argocd-resources
+      name: Create ArgoCD Resources
+      action: argocd:create-resources
+      input:
+        appName: "{{ '${{ parameters.component_id }}' }}-bootstrap"
+        argoInstance: main
+        namespace: janus-argocd
+        repoUrl: https://{{ '${{ parameters.repo.host }}' }}/{{ '${{ parameters.repo.owner }}' }}/{{ '${{ parameters.component_id }}' }}-gitops.git
+        path: 'argocd/'
+
+  output:
+    links:
+      - title: Source Code Repository
+        url: "{{ '${{ steps.publish.output.remoteUrl }}' }}"
+      - title: Open Component in catalog
+        icon: catalog
+        entityRef: "{{ '${{ steps.register.output.entityRef }}' }}"
