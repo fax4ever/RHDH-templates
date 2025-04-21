@@ -108,8 +108,26 @@ spec:
           component_enbableGPUSupport: {{ '${{ parameters.component_enbableGPUSupport }}' }}
           component_createGPU: {{ '${{ parameters.component_createGPU }}' }}
     
-    - id: publish
-      name: Publish
+    # - id: publish
+    #   name: Publish
+    #   action: publish:gitlab
+    #   input:
+    #     allowedHosts:
+    #       - gitlab-gitlab.apps.cluster-ftr6w.ftr6w.sandbox2472.opentlc.com
+    #     description: This is ${{ parameters.name }}
+    #     repoUrl: ${{ parameters.repoUrl }}
+    #     branch: main
+
+    - name: Publish to GitHub
+      if: ${{ parameters.repoUrl === "github.com" }}
+      action: publish:github
+      input:
+        allowedHosts: ["github.com"]
+        description: This is ${{ parameters.name }}
+        repoUrl: ${{ parameters.repoUrl }}
+
+    - name: Publish to GitLab
+      if: ${{ parameters.repoUrl === "gitlab-gitlab.apps.cluster-ftr6w.ftr6w.sandbox2472.opentlc.com" }}
       action: publish:gitlab
       input:
         allowedHosts:
