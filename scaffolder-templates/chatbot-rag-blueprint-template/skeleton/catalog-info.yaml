@@ -1,0 +1,10 @@
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: janustest1
+  annotations:
+    github.com/project-slug: rocrisp/janustest1
+spec:
+  type: demonstration
+  lifecycle: demoonly
+  owner: dhllamastack

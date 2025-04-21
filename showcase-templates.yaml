@@ -6,4 +6,5 @@ metadata:
 spec:
   type: url
   targets:
-    - chatbot-rag-blueprint-template/template.yaml
+    - scaffolder-templates/chatbot-rag-blueprint-template/template.yaml
+
