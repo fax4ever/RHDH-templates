@@ -86,8 +86,8 @@ spec:
           ui:field: RepoUrlPicker
           ui:options:
             allowedHosts:
-              - github.com
-              - gitlab-gitlab.apps.cluster-ftr6w.ftr6w.sandbox2472.opentlc.com
+              - {{ GITHUB_HOST_DOMAIN }}
+              - {{ GITLAB_HOST }}
        
   # here's the steps that are executed in series in the scaffolder backend
   steps:
