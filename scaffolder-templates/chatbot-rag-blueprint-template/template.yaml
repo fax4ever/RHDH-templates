@@ -76,6 +76,7 @@ spec:
                     title: Create GPU
                     type: boolean
                     description: provision your own gpu
+    
     - title: Choose a location
       required:
         - repoUrl
@@ -86,8 +87,7 @@ spec:
           ui:field: RepoUrlPicker
           ui:options:
             allowedHosts:
-              - {{ GITHUB_HOST_DOMAIN }}
-              - {{ GITLAB_HOST }}
+              - github.com
        
   # here's the steps that are executed in series in the scaffolder backend
   steps:
@@ -117,24 +117,14 @@ spec:
     #     description: This is ${{ parameters.name }}
     #     repoUrl: ${{ parameters.repoUrl }}
     #     branch: main
-
-    - name: Publish to GitHub
-      if: ${{ parameters.repoUrl === "github.com" }}
+    
+    - id: publishgh
+      name: Publish to GitHub
       action: publish:github
       input:
         allowedHosts: ["github.com"]
         description: This is ${{ parameters.name }}
         repoUrl: ${{ parameters.repoUrl }}
-
-    - name: Publish to GitLab
-      if: ${{ parameters.repoUrl === "gitlab-gitlab.apps.cluster-ftr6w.ftr6w.sandbox2472.opentlc.com" }}
-      action: publish:gitlab
-      input:
-        allowedHosts:
-          - gitlab-gitlab.apps.cluster-ftr6w.ftr6w.sandbox2472.opentlc.com
-        description: This is ${{ parameters.name }}
-        repoUrl: ${{ parameters.repoUrl }}
-        branch: main
     
     # - id: register
     #   name: Register
