@@ -3,7 +3,8 @@ kind: Component
 metadata:
   name: ${{ (values.component_id + '-blueprint') | dump }}
   annotations:
-    github.com/project-slug: ${{ values.destination | dump }}
+    github.com/project-slug: ${{ (values.git_owner + '/' + values.component_id) | dump }}
+
 spec:
   type: service
   lifecycle: production
