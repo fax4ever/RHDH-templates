@@ -165,15 +165,25 @@ spec:
           model_api_key: {{ '${{ parameters.model_api_key | default("NOT_SET") }}' }}
         targetPath: ./tenant-gitops
 
+    # - id: publish-gitops
+    #   name: Publish to Resource Repository
+    #   action: publish:gitlab
+    #   input:
+    #     repoUrl: ${{ parameters.repoUrl }}-gitops
+    #     title: gitops resources for {{ '${{ parameters.component_id }}' }}
+    #     description: gitops resources for {{ '${{ parameters.component_id }}' }}
+    #     sourcePath: ./tenant-gitops
+    #     repoVisibility: public
+
     - id: publish-gitops
-      name: Publish o Resource Repository
-      action: publish:gitlab
+      name: Publish to Resource Repository
+      action: publish:github
       input:
+        allowedHosts: ["github.com"]
         repoUrl: ${{ parameters.repoUrl }}-gitops
         title: gitops resources for {{ '${{ parameters.component_id }}' }}
         description: gitops resources for {{ '${{ parameters.component_id }}' }}
         sourcePath: ./tenant-gitops
-        repoVisibility: public
 
     - id: create-argocd-resources
       name: Create ArgoCD Resources
