@@ -97,14 +97,14 @@ spec:
       input:
         url: ./skeleton
         values:
-          component_id: {{ '${{ parameters.component_id }}' }}
-          component_description: {{ '${{ parameters.description }}' }}
-          component_owner: {{ '${{ parameters.owner }}' }}
-          component_repoUrl: {{ '${{ parameters.repoUrl }}' }}
-          component_model: {{ '${{ parameters.model }}' }}
-          component_token: {{ '${{ parameters.token }}' }}
-          component_enbableGPUSupport: {{ '${{ parameters.enbableGPUSupport }}' }}
-          component_createGPU: {{ '${{ parameters.createGPU }}' }}
+          component_id: ${{ parameters.component_id }}
+          component_description: ${{ parameters.description }}
+          component_owner: ${{ parameters.owner }}
+          component_repoUrl: ${{ parameters.repoUrl }}
+          component_model: ${{ parameters.model }}
+          component_token: ${{ parameters.token }}
+          component_enbableGPUSupport: ${{ parameters.enbableGPUSupport }}
+          component_createGPU: ${{ parameters.createGPU }}
     
     # - id: publish
     #   name: Publish
