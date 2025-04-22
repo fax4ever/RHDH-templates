@@ -8,7 +8,7 @@ metadata:
 spec:
   type: service
   lifecycle: production
-  owner: ${{ values.git_owner | dump }}
+  owner: ${{ values.component_owner | dump }}
   providesApis:
     - ${{ values.component_id | dump }}
   consumesApis:
