@@ -3,8 +3,8 @@ kind: Component
 metadata:
   name: janustest1
   annotations:
-    github.com/project-slug: rocrisp/janustest1
-    argocd/app-selector: 'rht-gitops.com/janus-argocd=my-app'
+    github.com/project-slug: ${{values.destination}}
+    argocd/app-selector: rht-gitops.com/janus-argocd=${{values.component_id}}-bootstrap
 spec:
   type: demonstration
   lifecycle: demoonly
