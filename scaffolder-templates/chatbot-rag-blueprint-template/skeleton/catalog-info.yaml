@@ -1,7 +1,7 @@
 apiVersion: backstage.io/v1alpha1
 kind: Component
 metadata:
-  name: ${{values.component_id}}-blueprint}}
+  name: ${{ (values.component_id + '-blueprint') | dump }}
   description: ${{ values.description | dump }}
   annotations:
     github.com/project-slug: ${{ values.destination | dump }}
