@@ -130,6 +130,7 @@ spec:
       input:
         message: |
           {{ readFile('catalog-info.yaml') }}
+          "component_id: {{ '${{ parameters.component_id }}' }}"
 
     
     - id: register
