@@ -29,7 +29,7 @@ spec:
           default: chatbot-app
           ui:field: EntityNamePicker
           maxLength: 12
-      component_description:
+        description:
           title: Description
           type: string
           description: Description of the component
@@ -54,7 +54,7 @@ spec:
           ui:options:
             catalogFilter:
               kind: Group
-        Token:
+        token:
           title: Hugging Face Token
           type: string
           description: Enter your Hugging Face token
@@ -98,15 +98,13 @@ spec:
         url: ./skeleton
         values:
           component_id: {{ '${{ parameters.component_id }}' }}
-          component_name: {{ '${{ parameters.component_name }}' }}
-          component_description: {{ '${{ parameters.component_description }}' }}
-          component_owner: {{ '${{ parameters.component_owner }}' }}
-          component_type: {{ '${{ parameters.component_type }}' }}
+          component_description: {{ '${{ parameters.description }}' }}
+          component_owner: {{ '${{ parameters.owner }}' }}
           component_repoUrl: {{ '${{ parameters.repoUrl }}' }}
-          component_model: {{ '${{ parameters.component_model }}' }}
-          component_token: {{ '${{ parameters.component_token }}' }}
-          component_enbableGPUSupport: {{ '${{ parameters.component_enbableGPUSupport }}' }}
-          component_createGPU: {{ '${{ parameters.component_createGPU }}' }}
+          component_model: {{ '${{ parameters.model }}' }}
+          component_token: {{ '${{ parameters.token }}' }}
+          component_enbableGPUSupport: {{ '${{ parameters.enbableGPUSupport }}' }}
+          component_createGPU: {{ '${{ parameters.createGPU }}' }}
     
     # - id: publish
     #   name: Publish
