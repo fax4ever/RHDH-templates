@@ -123,6 +123,14 @@ spec:
         allowedHosts: ["github.com"]
         description: This is ${{ parameters.name }}
         repoUrl: ${{ parameters.repoUrl }}
+
+    - id: debug-template
+      name: Print catalog-info.yaml
+      action: debug:log
+      input:
+        message: |
+          {{ readFile('catalog-info.yaml') }}
+
     
     - id: register
       name: Register

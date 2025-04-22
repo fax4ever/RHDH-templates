@@ -13,4 +13,4 @@ spec:
   providesApis:
     - ${{ values.component_id | dump }}
   consumesApis:
-    - ${{ (values.component_id + '-' + values.model_name + '-api') | dump }}
+    - ${{ (values.component_id + '-' + values.model + '-api') | dump }}
