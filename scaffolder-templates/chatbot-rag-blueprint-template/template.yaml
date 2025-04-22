@@ -29,7 +29,7 @@ spec:
           default: chatbot-app
           ui:field: EntityNamePicker
           maxLength: 12
-      component_description:
+        description:
           title: Description
           type: string
           description: Description of the component
@@ -54,7 +54,7 @@ spec:
           ui:options:
             catalogFilter:
               kind: Group
-        Token:
+        token:
           title: Hugging Face Token
           type: string
           description: Enter your Hugging Face token
@@ -76,6 +76,7 @@ spec:
                     title: Create GPU
                     type: boolean
                     description: provision your own gpu
+    
     - title: Choose a location
       required:
         - repoUrl
@@ -87,43 +88,57 @@ spec:
           ui:options:
             allowedHosts:
               - github.com
-              - gitlab-gitlab.apps.cluster-ftr6w.ftr6w.sandbox2472.opentlc.com
        
   # here's the steps that are executed in series in the scaffolder backend
   steps:
     - id: template
-      name: Fetch Sleleton + Template
+      name: Fetch Skeleton + Template
       action: fetch:template
       input:
         url: ./skeleton
         values:
-          component_id: {{ '${{ parameters.component_id }}' }}
-          component_name: {{ '${{ parameters.component_name }}' }}
-          component_description: {{ '${{ parameters.component_description }}' }}
-          component_owner: {{ '${{ parameters.component_owner }}' }}
-          component_type: {{ '${{ parameters.component_type }}' }}
-          component_repoUrl: {{ '${{ parameters.repoUrl }}' }}
-          component_model: {{ '${{ parameters.component_model }}' }}
-          component_token: {{ '${{ parameters.component_token }}' }}
-          component_enbableGPUSupport: {{ '${{ parameters.component_enbableGPUSupport }}' }}
-          component_createGPU: {{ '${{ parameters.component_createGPU }}' }}
+          component_id: ${{ parameters.component_id }}
+          component_description: ${{ parameters.description }}
+          component_owner: ${{ parameters.owner }}
+          component_repoUrl: ${{ parameters.repoUrl }}
+          component_model: ${{ parameters.model }}
+          component_token: ${{ parameters.token }}
+          component_enbableGPUSupport: ${{ parameters.enbableGPUSupport }}
+          component_createGPU: ${{ parameters.createGPU }}
+    
+    # - id: publish
+    #   name: Publish
+    #   action: publish:gitlab
+    #   input:
+    #     allowedHosts:
+    #       - gitlab-gitlab.apps.cluster-ftr6w.ftr6w.sandbox2472.opentlc.com
+    #     description: This is ${{ parameters.name }}
+    #     repoUrl: ${{ parameters.repoUrl }}
+    #     branch: main
     
     - id: publish
-      name: Publish
-      action: publish:gitlab
+      name: Publish to GitHub
+      action: publish:github
       input:
-        allowedHosts:
-          - gitlab-gitlab.apps.cluster-ftr6w.ftr6w.sandbox2472.opentlc.com
+        allowedHosts: ["github.com"]
         description: This is ${{ parameters.name }}
         repoUrl: ${{ parameters.repoUrl }}
-        branch: main
+
+    - id: debug-template
+      name: Print catalog-info.yaml
+      action: debug:log
+      input:
+        message: |
+          {{ readFile('catalog-info.yaml') }}
+          "component_id: {{ '${{ parameters.component_id }}' }}"
+
     
-    # - id: register
-    #   name: Register
-    #   action: catalog:register
-    #   input:
-    #     repoContentsUrl: ${{ steps['publish'].output.repoContentsUrl }}
-    #     catalogInfoPath: "/catalog-info.yaml"
+    - id: register
+      name: Register
+      action: catalog:register
+      input:
+        repoContentsUrl: ${{ steps['publish'].output.repoContentsUrl }}
+        catalogInfoPath: "/catalog-info.yaml"
 
     - id: template-gitops-deployment
       name: Generating Deployment Resources
@@ -153,28 +168,38 @@ spec:
           user: {{ '${{ user.entity.metadata.name }}' }}
           verify_commits: {{ '${{ parameters.repo.verify_commits }}' }}
           model_endpoint: {{ '${{ parameters.model_endpoint }}' }}
-          model_name: {{ '${{ parameters.model_name }}' }}
+          model_name: {{ '${{ parameters.model }}' }}
           model_api_key: {{ '${{ parameters.model_api_key | default("NOT_SET") }}' }}
         targetPath: ./tenant-gitops
 
+    # - id: publish-gitops
+    #   name: Publish to Resource Repository
+    #   action: publish:gitlab
+    #   input:
+    #     repoUrl: ${{ parameters.repoUrl }}-gitops
+    #     title: gitops resources for {{ '${{ parameters.component_id }}' }}
+    #     description: gitops resources for {{ '${{ parameters.component_id }}' }}
+    #     sourcePath: ./tenant-gitops
+    #     repoVisibility: public
+
     - id: publish-gitops
-      name: Publish o Resource Repository
-      action: publish:gitlab
+      name: Publish to Resource Repository
+      action: publish:github
       input:
+        allowedHosts: ["github.com"]
         repoUrl: ${{ parameters.repoUrl }}-gitops
         title: gitops resources for {{ '${{ parameters.component_id }}' }}
         description: gitops resources for {{ '${{ parameters.component_id }}' }}
         sourcePath: ./tenant-gitops
-        repoVisibility: public
 
     - id: create-argocd-resources
       name: Create ArgoCD Resources
       action: argocd:create-resources
       input:
         appName: "{{ '${{ parameters.component_id }}' }}-bootstrap"
-        argoInstance: main
-        namespace: janus-argocd
-        repoUrl: https://{{ '${{ parameters.repo.host }}' }}/{{ '${{ parameters.repo.owner }}' }}/{{ '${{ parameters.component_id }}' }}-gitops.git
+        argoInstance: argoInstance1
+        namespace: openshift-gitops
+        repoUrl: ${{ parameters.repoUrl }}-gitops
         path: 'argocd/'
 
   output:

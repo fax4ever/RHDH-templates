@@ -1,10 +1,15 @@
 apiVersion: backstage.io/v1alpha1
 kind: Component
 metadata:
-  name: janustest1
+  name: ${{ (values.component_id + '-blueprint') | dump }}
   annotations:
-    github.com/project-slug: rocrisp/janustest1
+    github.com/project-slug: ${{ (values.git_owner + '/' + values.component_id) | dump }}
+
 spec:
-  type: demonstration
-  lifecycle: demoonly
-  owner: dhllamastack
+  type: service
+  lifecycle: production
+  owner: ${{ values.component_owner | dump }}
+  providesApis:
+    - ${{ values.component_id | dump }}
+  consumesApis:
+    - ${{ (values.component_id + '-' + values.model_name + '-api') | dump }}
