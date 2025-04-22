@@ -1,15 +1,15 @@
 apiVersion: backstage.io/v1alpha1
 kind: Component
 metadata:
-  name: ${{values.component_id | dump}}
-  description: ${{values.description | dump}}
+  name: ${{ values.component_id | dump }}
+  description: ${{ values.description | dump }}
   annotations:
-    github.com/project-slug: ${{values.destination | dump}}
+    github.com/project-slug: ${{ values.destination | dump }}
 spec:
   type: service
   lifecycle: production
-  owner: ${{values.git_owner | dump}}
+  owner: ${{ values.git_owner | dump }}
   providesApis:
-    - ${{values.component_id | dump}}
+    - ${{ values.component_id | dump }}
   consumesApis:
-    - ${{values.component_id + '-' + values.model_name + '-api') | dump}}
+    - ${{ (values.component_id + '-' + values.model_name + '-api') | dump }}
