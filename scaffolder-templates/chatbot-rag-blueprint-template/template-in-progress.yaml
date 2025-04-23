@@ -142,7 +142,7 @@ spec:
           title: Namespace
           type: string
           description: The namespace where the application will be deployed
-          default: ${{ parameters.name }}
+          default: chatbot-app-ns
           ui:help: "The namespace where the application will be deployed"
   # here's the steps that are executed in series in the scaffolder backend
   steps:
@@ -219,7 +219,7 @@ spec:
     - id: publish-github-gitops
       name: Publish GitOps Repository to Github
       action: publish:github
-      if: ${{ parameters.hostType === 'GitHub' }}
+      if: ${{ parameters.hostType == 'GitHub' }}
       input:
         repoUrl: ${{ parameters.githubServer }}?owner=${{ parameters.repoOwner }}&repo=${{ parameters.repoName }}-gitops
         sourcePath: ./tenant-gitops
