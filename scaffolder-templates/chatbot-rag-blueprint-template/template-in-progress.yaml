@@ -76,7 +76,7 @@ spec:
           title: Repository Default Branch
           type: string
           default: main
-      dependency:
+      dependencies:
         hostType:
           oneOf:
             - required:
