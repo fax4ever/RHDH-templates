@@ -1,15 +1,19 @@
 apiVersion: backstage.io/v1alpha1
 kind: Component
 metadata:
-  name: ${{ (values.component_id + '-blueprint') | dump }}
+
+  name: ${{ (values.name + '-blueprint') | dump }}
+  namespace: default
+  description: ${{ (values.description + ' - ' + values.name) | dump }}
   annotations:
-    github.com/project-slug: ${{ (values.git_owner + '/' + values.component_id) | dump }}
+    github.com/project-slug: ${{ (values.owner + '/' + values.name) | dump }}
 
 spec:
   type: service
   lifecycle: production
-  owner: ${{ values.component_owner | dump }}
+  owner: group:${{ values.owner | dump }}
   providesApis:
-    - ${{ values.component_id | dump }}
+    - ${{ values.name | dump }}
   consumesApis:
-    - ${{ (values.component_id + '-' + values.model_name + '-api') | dump }}
+    - ${{ (values.name + '-' + values.model + '-api') | dump }}
+
