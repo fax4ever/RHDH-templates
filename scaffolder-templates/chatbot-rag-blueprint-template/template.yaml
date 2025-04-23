@@ -179,8 +179,8 @@ spec:
       action: argocd:create-resources
       input:
         appName: ${{ parameters.name }}-bootstrap
-        argoInstance: argoInstance1
-        namespace: bootstrap-gitops
+        argoInstance: default
+        namespace: ai-rhdh
         repoUrl: ${{ parameters.repoUrl }}-gitops
         path: 'argocd/'
 
