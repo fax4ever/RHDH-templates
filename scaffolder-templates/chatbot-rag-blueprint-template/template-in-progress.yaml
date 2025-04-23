@@ -64,7 +64,7 @@ spec:
           enum:
             - GitHub
             - GitLab
-          default: github
+          default: GitHub
         repoOwner:
           title: Repository Owner
           type: string
@@ -165,7 +165,7 @@ spec:
     - id: publish-github
       name: Publish rag app to Github
       action: publish:github
-      if: ${{ parameters.hostType == 'GitHub' }}
+      if: ${{ parameters.hostType === 'GitHub' }}
       input:
         allowedHosts: ['${{ parameters.githubServer }}']
         description: This is ${{ parameters.name }}
@@ -218,7 +218,7 @@ spec:
     - id: publish-github-gitops
       name: Publish GitOps Repository to Github
       action: publish:github
-      if: ${{ parameters.hostType == 'GitHub' }}
+      if: ${{ parameters.hostType === 'GitHub' }}
       input:
         repoUrl: ${{ parameters.githubServer }}?owner=${{ parameters.repoOwner }}&repo=${{ parameters.repoName }}-gitops
         sourcePath: ./tenant-gitops
