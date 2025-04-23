@@ -18,12 +18,12 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: ${{values.repoUrl}}-gitops
+    repoURL: https://${{ parameters.githubServer if parameters.hostType === 'GitHub' else parameters.gitlabServer }}/${{ parameters.repoOwner }}/${{ parameters.repoName }}-gitops.git
     targetRevision: HEAD
     path: ./helm/rag-ui
   destination:
     server: https://kubernetes.default.svc
-    namespace: ${{values.name}}-ai
+    namespace: ${{values.namespace}}-ai
   syncPolicy:
     automated:
       prune: false

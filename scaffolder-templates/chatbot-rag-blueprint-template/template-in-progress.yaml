@@ -223,6 +223,7 @@ spec:
         sourcePath: ./tenant-gitops
         allowedHosts: ['${{ parameters.githubServer }}']
         description: This is GitOps repository for ${{ parameters.name }}
+        namespace: ${{ parameters.namespace }}
         repoVisibility: "public"
         defaultBranch: "main"
         protectDefaultBranch: false
@@ -263,7 +264,7 @@ spec:
       input:
         appName: ${{ parameters.name }}-app-of-apps
         argoInstance: default
-        namespace: ai-rhdh
+        namespace: ${{ parameters.namespace }}
         repoUrl: https://${{ parameters.githubServer if parameters.hostType === 'GitHub' else parameters.gitlabServer }}/${{ parameters.repoOwner }}/${{ parameters.repoName }}-gitops.git
         path: 'argocd/'
     
