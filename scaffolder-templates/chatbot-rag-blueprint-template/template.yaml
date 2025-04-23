@@ -1,0 +1,193 @@
+# Edit the template parameters below to see how they will render in the scaffolder form UI
+apiVersion: scaffolder.backstage.io/v1beta3
+kind: Template
+# This template is used to create a chatbot rag blueprint using llamastack with vllm
+metadata:
+  name: chatbot-rag-blueprint-template
+  title: creates a rag blueprint using llamastack with vllm
+  description: creates a rag blueprint using llamastack with vllm
+  tags:
+    - recommended
+    - python
+    - ai
+    - rhoai
+    - rag
+    - rhtap
+spec:
+  owner: rhdh
+  type: service
+  # these are the steps which are rendered in the frontend with the form input
+  parameters:
+    - title: Provide Information for Application
+      required:
+        - name
+      properties:
+        name:
+          title: Name
+          type: string
+          description: Unique identifier for the component
+          default: chatbot-app
+          ui:autofocus: true
+          ui:options:
+            rows: 5
+        description:
+          title: Description
+          type: string
+          description: Description of the component
+          default: chatbot rag app
+        owner:
+          title: Owner
+          type: string
+          description: Owner of the component
+          ui:field: OwnerPicker
+          default: dhllamastack
+          ui:options:
+            catalogFilter:
+              kind: Group
+    
+    - title: Choose a location
+      required:
+        - repoUrl
+      properties:
+        repoUrl:
+          title: Repository Location
+          type: string
+          ui:field: RepoUrlPicker
+          ui:options:
+            allowedHosts:
+              - github.com
+  
+    - title: Choose a model
+      required:
+        - model
+      properties:
+        model:
+          title: Model
+          type: string
+          description: choose your LLM model
+          default: ibm-granite/granite-3.2-8b-instruct
+          enum:
+          - meta-llama/Llama-3.2-3B-Instruct
+          - ibm-granite/granite-3.2-8b-instruct
+        token:
+          title: Hugging Face Token
+          type: string
+          description: Enter your Hugging Face token
+        enbableGPUSupport:
+          title: Enable GPU Support 
+          type: boolean
+          # ui:widget: radio
+          description: defaults to cpu
+      dependencies:
+        enbableGPUSupport:
+          allOf:
+            - if:
+                properties: 
+                  enbableGPUSupport:
+                    const: true
+              then:
+                properties:
+                  createGPU:
+                    title: Create GPU
+                    type: boolean
+                    description: provision your own gpu
+    
+    
+  # here's the steps that are executed in series in the scaffolder backend
+  steps:
+    - id: fetch-base
+      name: Fetch Skeleton + Template
+      action: fetch:template
+      input:
+        url: ./skeleton
+        values:
+          name: ${{ parameters.name }}
+          owner: ${{ parameters.owner }}
+          repoUrl: ${{ parameters.repoUrl }}
+          model: ${{ parameters.model }}
+          token: ${{ parameters.token }}
+          enbableGPUSupport: ${{ parameters.enbableGPUSupport }}
+          createGPU: ${{ parameters.createGPU }}
+    
+    # - id: publish
+    #   name: Publish
+    #   action: publish:gitlab
+    #   input:
+    #     allowedHosts:
+    #       - gitlab-gitlab.apps.cluster-ftr6w.ftr6w.sandbox2472.opentlc.com
+    #     description: This is ${{ parameters.name }}
+    #     repoUrl: ${{ parameters.repoUrl }}
+    #     branch: main
+    
+    - id: publish
+      name: Publish rag app
+      action: publish:github
+      input:
+        allowedHosts: ["github.com"]
+        description: This is ${{ parameters.name }}
+        repoUrl: ${{ parameters.repoUrl }}
+        defaultBranch: 'main'
+
+    - id: register
+      name: Register
+      action: catalog:register
+      input:
+        repoContentsUrl: ${{ steps['publish'].output.repoContentsUrl }}
+        catalogInfoPath: "/catalog-info.yaml"
+
+    - id: template-gitops-deployment
+      name: Generating Deployment Resources
+      action: fetch:template
+      input:
+        url: ./manifests
+        copyWithoutTemplating:
+          - '**/*.jinja'
+          - '**/*.jinja2'
+        values:
+          name: ${{ parameters.name }}
+          description: ${{ parameters.description }}
+          owner: ${{ parameters.owner }}
+          repoUrl: ${{ parameters.repoUrl }}
+          model: ${{ parameters.model }}
+          token: ${{ parameters.token }}
+          enbableGPUSupport: ${{ parameters.enbableGPUSupport }}
+          createGPU: ${{ parameters.createGPU }}
+        targetPath: ./tenant-gitops
+
+    # - id: publish-gitops
+    #   name: Publish to Resource Repository
+    #   action: publish:gitlab
+    #   input:
+    #     repoUrl: ${{ parameters.repoUrl }}-gitops
+    #     title: gitops resources for {{ '${{ parameters.component_id }}' }}
+    #     description: gitops resources for {{ '${{ parameters.component_id }}' }}
+    #     sourcePath: ./tenant-gitops
+    #     repoVisibility: public
+    
+    - id: publish-gitops
+      name: Publish to Resource Repository
+      action: publish:github
+      input:
+        repoUrl: ${{ parameters.repoUrl }}-gitops
+        title: gitops resources for {{ '${{ parameters.name }}' }}
+        description: gitops resources for {{ '${{ parameters.name }}' }}
+        sourcePath: ./tenant-gitops
+        repoVisibility: public
+
+    - id: create-argocd-resources
+      name: Create ArgoCD Resources
+      action: argocd:create-resources
+      input:
+        appName: ${{ parameters.name }}-bootstrap
+        argoInstance: argoInstance1
+        namespace: bootstrap-gitops
+        repoUrl: ${{ parameters.repoUrl }}-gitops
+        path: 'argocd/'
+
+  output:
+    links:
+      - title: Repository
+        url: ${{ steps.publish.output.remoteUrl }}
+      - title: Open in catalog
+        icon: catalog
+        entityRef: ${{ steps['register'].output.entityRef }}
