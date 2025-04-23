@@ -258,6 +258,25 @@ spec:
     #   input:
     #     repoContentsUrl: ${{ steps['publish-github-gitops'].output.repoContentsUrl if steps['publish-github-gitops'].output else steps['publish-gitlab-gitops'].output.repoContentsUrl }}
     #     catalogInfoPath: '/catalog-info.yaml'
+    
+    - id: debug-argocd-input
+      name: Debug ArgoCD Resource Inputs
+      action: debug:log
+      input:
+        message: |
+          --- ArgoCD Create Inputs ---
+          appName: ${{ parameters.name }}-app-of-apps
+          argoInstance: default
+          namespace: ${{ parameters.namespace }}
+          hostType: ${{ parameters.hostType }}
+          githubServer: ${{ parameters.githubServer }}
+          gitlabServer: ${{ parameters.gitlabServer }}
+          repoOwner: ${{ parameters.repoOwner }}
+          repoName: ${{ parameters.repoName }}
+          repoUrl: https://${{ parameters.githubServer if parameters.hostType === 'GitHub' else parameters.gitlabServer }}/${{ parameters.repoOwner }}/${{ parameters.repoName }}-gitops.git
+          path: argocd/
+
+    
     - id: create-argocd-resources
       name: Create ArgoCD Resources
       action: argocd:create-resources
