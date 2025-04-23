@@ -62,8 +62,8 @@ spec:
           title: Host Type
           type: string
           enum:
-            - github
-            - gitlab
+            - GitHub
+            - GitLab
           default: github
         repoOwner:
           title: Repository Owner
@@ -143,7 +143,6 @@ spec:
           type: string
           description: The namespace where the application will be deployed
           default: chatbot-app-ns
-          ui:help: "The namespace where the application will be deployed"
   # here's the steps that are executed in series in the scaffolder backend
   steps:
     - id: fetch-base
