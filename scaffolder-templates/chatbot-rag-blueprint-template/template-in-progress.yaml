@@ -123,13 +123,6 @@ spec:
           type: boolean
           # ui:widget: radio
           description: defaults to cpu
-        namespace:
-          title: Deployment Namespace
-          type: string
-          default: rhdh-app
-          ui:autofocus: true
-          ui:options:
-            rows: 5
       dependencies:
         enbableGPUSupport:
           allOf:
@@ -143,7 +136,16 @@ spec:
                     title: Create GPU
                     type: boolean
                     description: provision your own gpu
-    
+    - title: Application Namespace
+      required:
+        - namespace
+      properties:
+        namespace:
+          title: Namespace
+          type: string
+          description: The namespace where the application will be deployed
+          default: ${{ parameters.name }}
+          ui:help: "The namespace where the application will be deployed"
   # here's the steps that are executed in series in the scaffolder backend
   steps:
     - id: fetch-base
@@ -179,18 +181,18 @@ spec:
         repoVisibility: "public"
         requiredApprovingReviewCount: 0
     # This action creates a new GitLab repository and publishes the files in the workspace directory to the repository.
-    - id: publish-gitlab
-      name: Publish Repository to GitLab
-      action: publish:gitlab
-      if: ${{ parameters.hostType === 'GitLab' }}
-      input:
-        sourcePath: source
-        allowedHosts: ['${{ parameters.gitlabServer }}']
-        description: This is ${{ parameters.name }}
-        repoUrl: ${{ parameters.gitlabServer }}?owner=${{ parameters.repoOwner }}&repo=${{ parameters.repoName }}
-        defaultBranch: ${{ parameters.branch }}
-        protectDefaultBranch: false
-        repoVisibility: "public"
+    # - id: publish-gitlab
+    #   name: Publish Repository to GitLab
+    #   action: publish:gitlab
+    #   if: ${{ parameters.hostType === 'GitLab' }}
+    #   input:
+    #     sourcePath: source
+    #     allowedHosts: ['${{ parameters.gitlabServer }}']
+    #     description: This is ${{ parameters.name }}
+    #     repoUrl: ${{ parameters.gitlabServer }}?owner=${{ parameters.repoOwner }}&repo=${{ parameters.repoName }}
+    #     defaultBranch: ${{ parameters.branch }}
+    #     protectDefaultBranch: false
+    #     repoVisibility: "public"
     - id: fetch-gitops-deployment
       name: fetch Gitops Skeleton
       action: fetch:template
@@ -229,18 +231,18 @@ spec:
         defaultBranch: "main"
         protectDefaultBranch: false
     # This action creates a new GitLab repository and publishes the files in the workspace directory to the repository.
-    - id: publish-gitlab-gitops
-      name: Publish GitOps Repository to GitLab
-      action: publish:gitlab
-      if: ${{ parameters.hostType === 'GitLab' }}
-      input:
-        sourcePath: ./tenant-gitops
-        allowedHosts: ['${{ parameters.gitlabServer }}']
-        description: This is GitOps repository for ${{ parameters.name }}
-        repoUrl: ${{ parameters.gitlabServer }}?owner=${{ parameters.repoOwner }}&repo=${{ parameters.repoName }}-gitops
-        defaultBranch: "main"
-        protectDefaultBranch: false
-        repoVisibility: "public"
+    # - id: publish-gitlab-gitops
+    #   name: Publish GitOps Repository to GitLab
+    #   action: publish:gitlab
+    #   if: ${{ parameters.hostType === 'GitLab' }}
+    #   input:
+    #     sourcePath: ./tenant-gitops
+    #     allowedHosts: ['${{ parameters.gitlabServer }}']
+    #     description: This is GitOps repository for ${{ parameters.name }}
+    #     repoUrl: ${{ parameters.gitlabServer }}?owner=${{ parameters.repoOwner }}&repo=${{ parameters.repoName }}-gitops
+    #     defaultBranch: "main"
+    #     protectDefaultBranch: false
+    #     repoVisibility: "public"
     - id: wait-for-github-repository
       name: Waiting for Repository Availability
       action: 'debug:wait'
