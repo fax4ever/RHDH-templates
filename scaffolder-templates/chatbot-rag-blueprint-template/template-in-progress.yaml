@@ -39,7 +39,6 @@ spec:
           type: string
           description: Description of the component
           default: chatbot rag app
-          ui:field: EntityNamePicker
           maxLength: 63
         owner:
           title: Owner
@@ -104,7 +103,6 @@ spec:
     - title: Choose a model
       required:
         - model
-        - namespace
       properties:
         model:
           title: Model
