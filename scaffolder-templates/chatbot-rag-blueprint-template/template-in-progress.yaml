@@ -150,7 +150,6 @@ spec:
       action: fetch:template
       input:
         url: ./skeleton
-        targetPath: source
         values:
           name: ${{ parameters.name }}
           namespace: ${{ parameters.namespace }}
