@@ -13,14 +13,18 @@ metadata:
     - rhoai
     - rag
     - rhtap
+  annotations:
+    backstage.io/techdocs-ref: dir:.
 spec:
   owner: rhdh
   type: service
-  # these are the steps which are rendered in the frontend with the form input
+  # These parameters are used to generate the input form in the frontend, and are
+  # used to gather input data for the execution of the template.
   parameters:
-    - title: Provide Information for Application
+    - title: Application Information
       required:
         - name
+        - owner
       properties:
         name:
           title: Name
@@ -35,27 +39,66 @@ spec:
           type: string
           description: Description of the component
           default: chatbot rag app
+          maxLength: 63
         owner:
           title: Owner
           type: string
           description: Owner of the component
           ui:field: OwnerPicker
-          default: dhllamastack
+          default: user:guest
           ui:options:
             catalogFilter:
-              kind: Group
+              kind: [Group, User]
+              readonly: false
     
-    - title: Choose a location
+    - title: Application Repository Location
       required:
-        - repoUrl
+        - hostType
+        - repoOwner
+        - repoName
+        - branch
       properties:
-        repoUrl:
-          title: Repository Location
+        hostType:
+          title: Host Type
           type: string
-          ui:field: RepoUrlPicker
-          ui:options:
-            allowedHosts:
-              - github.com
+          enum:
+            - GitHub
+            - GitLab
+          default: GitHub
+        repoOwner:
+          title: Repository Owner
+          type: string
+          ui:help: The organization, user or project that this repo will belong to
+        repoName:
+          title: Repository Name
+          type: string
+        branch:
+          title: Repository Default Branch
+          type: string
+          default: main
+      dependencies:
+        hostType:
+          oneOf:
+            - required:
+                - githubServer
+              properties:
+                hostType:
+                  const: GitHub
+                githubServer:
+                  title: Repository Server
+                  type: string
+                  default: github.com
+                  ui:help: "You can also provide the on-prem github server, example: github-github.apps.cluster-ljg9z.sandbox219.opentlc.com"
+            - required:
+                - gitlabServer
+              properties:
+                hostType:
+                  const: GitLab
+                gitlabServer:
+                  title: Repository Server
+                  type: string
+                  default: gitlab.com
+                  ui:help: "You can also provide the on-prem gitlab server, example: gitlab-gitlab.apps.cluster-ljg9z.sandbox219.opentlc.com"
   
     - title: Choose a model
       required:
@@ -91,52 +134,63 @@ spec:
                     title: Create GPU
                     type: boolean
                     description: provision your own gpu
-    
-    
+    - title: Application Namespace
+      required:
+        - namespace
+      properties:
+        namespace:
+          title: Namespace
+          type: string
+          description: The namespace where the application will be deployed
+          default: chatbot-app-ns
   # here's the steps that are executed in series in the scaffolder backend
   steps:
     - id: fetch-base
-      name: Fetch Skeleton + Template
+      name: Fetch Template
       action: fetch:template
       input:
         url: ./skeleton
         values:
           name: ${{ parameters.name }}
+          namespace: ${{ parameters.namespace }}
+          description: Deploy llamastack with vllm and rag
           owner: ${{ parameters.owner }}
-          repoUrl: ${{ parameters.repoUrl }}
+          #repoUrl: ${{ parameters.repoUrl }}
           model: ${{ parameters.model }}
           token: ${{ parameters.token }}
           enbableGPUSupport: ${{ parameters.enbableGPUSupport }}
           createGPU: ${{ parameters.createGPU }}
-    
-    # - id: publish
-    #   name: Publish
-    #   action: publish:gitlab
-    #   input:
-    #     allowedHosts:
-    #       - gitlab-gitlab.apps.cluster-ftr6w.ftr6w.sandbox2472.opentlc.com
-    #     description: This is ${{ parameters.name }}
-    #     repoUrl: ${{ parameters.repoUrl }}
-    #     branch: main
-    
-    - id: publish
-      name: Publish rag app
+          defaultBranch: ${{ parameters.branch }}    
+    - id: publish-github
+      name: Publish rag app to Github
       action: publish:github
+      if: ${{ parameters.hostType === 'GitHub' }}
       input:
-        allowedHosts: ["github.com"]
+        allowedHosts: ['${{ parameters.githubServer }}']
         description: This is ${{ parameters.name }}
-        repoUrl: ${{ parameters.repoUrl }}
-        defaultBranch: 'main'
-
-    - id: register
-      name: Register
-      action: catalog:register
-      input:
-        repoContentsUrl: ${{ steps['publish'].output.repoContentsUrl }}
-        catalogInfoPath: "/catalog-info.yaml"
-
-    - id: template-gitops-deployment
-      name: Generating Deployment Resources
+        repoUrl: ${{ parameters.githubServer }}?owner=${{ parameters.repoOwner }}&repo=${{ parameters.repoName }}
+        defaultBranch: ${{ parameters.branch }}
+        protectDefaultBranch: true
+        allowAutoMerge: true
+        deleteBranchOnMerge: true
+        requiredStatusCheckContexts: []
+        repoVisibility: "public"
+        requiredApprovingReviewCount: 0
+    # This action creates a new GitLab repository and publishes the files in the workspace directory to the repository.
+    # - id: publish-gitlab
+    #   name: Publish Repository to GitLab
+    #   action: publish:gitlab
+    #   if: ${{ parameters.hostType === 'GitLab' }}
+    #   input:
+    #     sourcePath: source
+    #     allowedHosts: ['${{ parameters.gitlabServer }}']
+    #     description: This is ${{ parameters.name }}
+    #     repoUrl: ${{ parameters.gitlabServer }}?owner=${{ parameters.repoOwner }}&repo=${{ parameters.repoName }}
+    #     defaultBranch: ${{ parameters.branch }}
+    #     protectDefaultBranch: false
+    #     repoVisibility: "public"
+    - id: fetch-gitops-deployment
+      name: fetch Gitops Skeleton
       action: fetch:template
       input:
         url: ./manifests
@@ -145,49 +199,107 @@ spec:
           - '**/*.jinja2'
         values:
           name: ${{ parameters.name }}
-          description: ${{ parameters.description }}
+          appName: ${{ parameters.name }}-gitops
+          namespace: ${{ parameters.namespace }}
+          description: This is GitOps manifest for ${{ parameters.name }}
+          rhdhNamespace: ai-rhdh
+          repoURL: https://${{ parameters.githubServer if parameters.hostType === 'GitHub' else parameters.gitlabServer }}/${{ parameters.repoOwner }}/${{ parameters.repoName }}-gitops.git
+          srcRepoURL: https://${{ parameters.githubServer if parameters.hostType === 'GitHub' else parameters.gitlabServer }}/${{ parameters.repoOwner }}/${{ parameters.repoName }}
+          argoComponentOverlays: './components/${{ parameters.name }}/overlays'
           owner: ${{ parameters.owner }}
-          repoUrl: ${{ parameters.repoUrl }}
+          argoNS: ai-rhdh
+          argoProject: default
           model: ${{ parameters.model }}
           token: ${{ parameters.token }}
           enbableGPUSupport: ${{ parameters.enbableGPUSupport }}
           createGPU: ${{ parameters.createGPU }}
         targetPath: ./tenant-gitops
-
-    # - id: publish-gitops
-    #   name: Publish to Resource Repository
-    #   action: publish:gitlab
-    #   input:
-    #     repoUrl: ${{ parameters.repoUrl }}-gitops
-    #     title: gitops resources for {{ '${{ parameters.component_id }}' }}
-    #     description: gitops resources for {{ '${{ parameters.component_id }}' }}
-    #     sourcePath: ./tenant-gitops
-    #     repoVisibility: public
-    
-    - id: publish-gitops
-      name: Publish to Resource Repository
+    - id: publish-github-gitops
+      name: Publish GitOps Repository to Github
       action: publish:github
+      if: ${{ parameters.hostType === 'GitHub' }}
       input:
-        repoUrl: ${{ parameters.repoUrl }}-gitops
-        title: gitops resources for {{ '${{ parameters.name }}' }}
-        description: gitops resources for {{ '${{ parameters.name }}' }}
+        repoUrl: ${{ parameters.githubServer }}?owner=${{ parameters.repoOwner }}&repo=${{ parameters.repoName }}-gitops
         sourcePath: ./tenant-gitops
-        repoVisibility: public
+        allowedHosts: ['${{ parameters.githubServer }}']
+        description: This is GitOps repository for ${{ parameters.name }}
+        namespace: ${{ parameters.namespace }}
+        repoVisibility: "public"
+        defaultBranch: "main"
+        protectDefaultBranch: false
+    # This action creates a new GitLab repository and publishes the files in the workspace directory to the repository.
+    # - id: publish-gitlab-gitops
+    #   name: Publish GitOps Repository to GitLab
+    #   action: publish:gitlab
+    #   if: ${{ parameters.hostType === 'GitLab' }}
+    #   input:
+    #     sourcePath: ./tenant-gitops
+    #     allowedHosts: ['${{ parameters.gitlabServer }}']
+    #     description: This is GitOps repository for ${{ parameters.name }}
+    #     repoUrl: ${{ parameters.gitlabServer }}?owner=${{ parameters.repoOwner }}&repo=${{ parameters.repoName }}-gitops
+    #     defaultBranch: "main"
+    #     protectDefaultBranch: false
+    #     repoVisibility: "public"
+    - id: wait-for-github-repository
+      name: Waiting for Repository Availability
+      action: 'debug:wait'
+      input:
+        seconds: 3
+    - id: register
+      name: Register
+      action: catalog:register
+      input:
+        repoContentsUrl:  ${{ steps['publish-github'].output.repoContentsUrl if steps['publish-github'].output else steps['publish-gitlab'].output.repoContentsUrl }}
+        catalogInfoPath: "/catalog-info.yaml"
+    # # SED_APP_SUPPORT_END
+    # - id: register-gitops
+    #   name: Register Gitops
+    #   action: catalog:register
+    #   input:
+    #     repoContentsUrl: ${{ steps['publish-github-gitops'].output.repoContentsUrl if steps['publish-github-gitops'].output else steps['publish-gitlab-gitops'].output.repoContentsUrl }}
+    #     catalogInfoPath: '/catalog-info.yaml'
+    
+    - id: debug-argocd-input
+      name: Debug ArgoCD Resource Inputs
+      action: debug:log
+      input:
+        message: |
+          --- ArgoCD Create Inputs ---
+          appName: ${{ parameters.name }}-app-of-apps
+          argoInstance: default
+          namespace: ${{ parameters.namespace }}
+          hostType: ${{ parameters.hostType }}
+          githubServer: ${{ parameters.githubServer }}
+          gitlabServer: ${{ parameters.gitlabServer }}
+          repoOwner: ${{ parameters.repoOwner }}
+          repoName: ${{ parameters.repoName }}
+          repoUrl: https://${{ parameters.githubServer if parameters.hostType === 'GitHub' else parameters.gitlabServer }}/${{ parameters.repoOwner }}/${{ parameters.repoName }}-gitops.git
+          path: argocd/
 
+    
     - id: create-argocd-resources
       name: Create ArgoCD Resources
       action: argocd:create-resources
       input:
-        appName: ${{ parameters.name }}-bootstrap
+        appName: ${{ parameters.name }}-app-of-apps
         argoInstance: default
-        namespace: ai-rhdh
-        repoUrl: ${{ parameters.repoUrl }}-gitops
+        namespace: ${{ parameters.namespace }}
+        repoUrl: https://${{ parameters.githubServer if parameters.hostType === 'GitHub' else parameters.gitlabServer }}/${{ parameters.repoOwner }}/${{ parameters.repoName }}-gitops.git
         path: 'argocd/'
-
+    
   output:
     links:
-      - title: Repository
-        url: ${{ steps.publish.output.remoteUrl }}
-      - title: Open in catalog
+      # SED_APP_SUPPORT_START
+      - title: Source Repository
+        url: ${{ steps['publish-github'].output.remoteUrl if steps['publish-github'].output else steps['publish-gitlab'].output.remoteUrl }}
+      # SED_APP_SUPPORT_END
+      - title: GitOps Repository
+        url: ${{ steps['publish-github-gitops'].output.remoteUrl if steps['publish-github-gitops'].output else steps['publish-gitlab-gitops'].output.remoteUrl }}
+      # SED_APP_SUPPORT_START
+      - title: Open Component in Catalog
         icon: catalog
         entityRef: ${{ steps['register'].output.entityRef }}
+      # SED_APP_SUPPORT_END
+      - title: Open GitOps Resource in Catalog
+        icon: catalog
+        entityRef: ${{ steps['register-gitops'].output.entityRef }}
