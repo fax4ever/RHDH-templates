@@ -1,13 +1,11 @@
 apiVersion: backstage.io/v1alpha1
 kind: Component
 metadata:
-
   name: ${{ (values.name + '-blueprint') | dump }}
   namespace: default
   description: ${{ (values.description + ' - ' + values.name) | dump }}
   annotations:
     github.com/project-slug: ${{ (values.owner + '/' + values.name) | dump }}
-
 spec:
   type: service
   lifecycle: production
