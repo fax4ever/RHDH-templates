@@ -142,7 +142,7 @@ spec:
           title: Namespace
           type: string
           description: The namespace where the application will be deployed
-          default: chatbot-app-ns
+          default: chatbot-app
   # here's the steps that are executed in series in the scaffolder backend
   steps:
     - id: fetch-base
@@ -281,9 +281,9 @@ spec:
       name: Create ArgoCD Resources
       action: argocd:create-resources
       input:
-        appName: ${{ parameters.name }}-app-of-apps
+        appName: ${{ parameters.name }}-bootstrap
         argoInstance: default
-        namespace: ${{ parameters.namespace }}
+        namespace: openshift-gitops
         repoUrl: https://${{ parameters.githubServer if parameters.hostType === 'GitHub' else parameters.gitlabServer }}/${{ parameters.repoOwner }}/${{ parameters.repoName }}-gitops.git
         path: 'argocd/'
     
