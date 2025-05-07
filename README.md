@@ -38,8 +38,7 @@ Visit your RHDH instance: https://redhat-developer-hub-openshift-gitops.apps.gpu
 
 Paste this URL into the import input field:
 
-https://github.com/RHEcosystemAppEng/RHDH-templates/blob/main/catalog-info.yaml
-
+[https://github.com/RHEcosystemAppEng/RHDH-templates/blob/main/showcase-templates.yaml](https://github.com/RHEcosystemAppEng/RHDH-templates/blob/main/showcase-templates.yaml)
 
 
 > 📝 This file registers all golden templates defined in the repository.
@@ -67,4 +66,3 @@ Click a template to launch the guided form.
   - View the source repository
   - See the component in the catalog
   - Review Argo CD
-
