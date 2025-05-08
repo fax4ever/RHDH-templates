@@ -119,21 +119,37 @@ spec:
           type: string
           description: LLM toleration
           default: nvidia.com/gpu
-    - title: Select Safety Model
+    - title: Select Safety Model 
       properties:
-        safety:
-          title: Safety Model
-          type: string
-          description: Choose your Safety model
-          default: llama-guard-3-1b
-          enum:
-            - llama-guard-3-1b
-            - llama-guard-3-8b
-        safety_toleration:
-          title: Safety Toleration
-          type: string
-          description: toleration
-          default: nvidia.com/gpu
+        enableSafety:
+          title: Enable Safety
+          type: boolean
+          description: Enable safety model
+          default: false
+      dependencies:
+        enableSafety:
+          allOf:
+            - if:
+                properties:
+                  enableSafety:
+                    const: true
+              then:
+                properties:
+                  safety:
+                    title: Safety Model
+                    type: string
+                    description: Choose your Safety model
+                    default: llama-guard-3-1b
+                    enum:
+                      - llama-guard-3-1b
+                      - llama-guard-3-8b
+                  safety_toleration:
+                    title: Safety Toleration
+                    type: string
+                    description: toleration
+                    default: nvidia.com/gpu
+                required:
+                  - safety
     - title: Application Namespace
       required:
         - namespace

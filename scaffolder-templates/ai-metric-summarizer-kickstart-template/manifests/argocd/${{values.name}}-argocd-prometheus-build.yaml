@@ -12,6 +12,12 @@ spec:
     repoURL: ${{values.repoURL}}
     targetRevision: HEAD
     path: ./helm/prometheus
+    helm:
+      valueFiles:
+        - values.yaml
+      parameters:
+        - name: listModels.modelId.enableModelIds
+          value: "meta-llama/${{ values.llm  }}"
   destination:
     server: https://kubernetes.default.svc
     namespace: ${{ values.namespace }}
