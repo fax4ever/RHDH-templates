@@ -21,7 +21,7 @@ spec:
         - name: llm.url
           value: "https://${{ values.llm }}.${{ values.namespace }}.svc.cluster.local"
         - name: listModels.modelId.enabledModelIds
-          value: '[ "meta-llama/${{ values.llm  }}" ]'
+          value: "meta-llama/${{ values.llm  }}"
   destination:
     server: https://kubernetes.default.svc
     namespace: ${{ values.namespace }}
