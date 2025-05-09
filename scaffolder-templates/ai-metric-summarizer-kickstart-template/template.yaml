@@ -174,7 +174,7 @@ spec:
       name: Fetch AI Observability Metrics Summarizer-kickstart
       action: fetch:plain
       input:
-        url: https://github.com/RHEcosystemAppEng/AI-Observability-Metrics-Summarizer
+        url: https://github.com/rh-ai-kickstart/AI-Observability-Metric-Summarizer
         targetPath: ./tenant
         copyWithoutTemplating:
           - "**/*.jinja"
@@ -183,7 +183,7 @@ spec:
       name: Fetch AI Observability Metrics Summarizer-kickstart Helm Chart
       action: fetch:plain
       input:
-        url: https://github.com/RHEcosystemAppEng/AI-Observability-Metrics-Summarizer/tree/main/deploy
+        url: https://github.com/rh-ai-kickstart/AI-Observability-Metric-Summarizer/tree/main/deploy
         targetPath: ./tenant-gitops
         copyWithoutTemplating:
           - "**/*.jinja"
