@@ -19,7 +19,7 @@ spec:
         - values.yaml
       parameters:
         - name: listModels.modelId.enabledModelIds
-          value: "meta-llama/${{ values.llm  }}"
+          value: '[ "meta-llama/${{ values.llm  }}" ]'
   destination:
     server: https://kubernetes.default.svc
     namespace: ${{ values.namespace }}
