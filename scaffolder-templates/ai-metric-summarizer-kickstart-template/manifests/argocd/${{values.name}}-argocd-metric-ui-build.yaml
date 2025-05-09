@@ -18,7 +18,7 @@ spec:
       parameters:
         - name: llm.url #https://llama-3-2-3b-instruct.metric-summarizer.svc.cluster.local
           value: "https://${{ values.llm }}.${{ values.namespace }}.svc.cluster.local"
-        - name: listModels.modelId.enableModelIds
+        - name: listModels.modelId.enabledModelIds
           value: "meta-llama/${{ values.llm  }}"
   destination:
     server: https://kubernetes.default.svc

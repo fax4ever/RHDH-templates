@@ -222,6 +222,7 @@ spec:
           llm: ${{ parameters.llm }}
           llm_toleration: ${{ parameters.llm_toleration }}
           safety: ${{ parameters.safety }}
+          enable_safety: ${{ parameters.enableSafety }}
           safety_toleration: ${{ parameters.safety_toleration }}
     - id: publish-github
       name: Publish Rag-kickstart to Github
