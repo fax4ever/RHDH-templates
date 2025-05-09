@@ -153,32 +153,60 @@ spec:
                     default: nvidia.com/gpu
                 required:
                   - safety
-    - title: Configure S3 Storage
+    - title: Configure ingestion pipeline
       properties:
-        enable_s3_bucket:
-          title: Enable S3 Bucket
+        enable_document_ingestion:
+          title: Enable ingestion pipeline
           type: boolean
-          description: Enable S3 bucket for storing data
+          description: Enable ingestion pipeline
           default: false
       dependencies:
-        enable_s3_bucket:
+        enable_document_ingestion:
           allOf:
             - if:
                 properties:
-                  enable_s3_bucket:
+                  enable_document_ingestion:
                     const: true
               then:
+                # EMBEDDING_MODEL ?= all-MiniLM-L6-v2
+                # INGESTION_PIPELINE_NAME ?= demo-rag-vector-db
+                # INGESTION_PIPELINE_VERSION ?= 1.0
+                # ACCESS_KEY_ID ?= $(MINIO_USER)
+                # SECRET_ACCESS_KEY ?= $(MINIO_PASSWORD)
+                # BUCKET_NAME ?= documents
+                # ENDPOINT_URL ?= http://minio:9000
+                # REGION ?= us-east-1
                 properties:
-                  s3_bucket_name:
-                    title: s3 Bucket Name
+                  injection_pipeline_name:
+                    title: Ingestion Pipeline Name
                     type: string
-                    description: s3 Bucket name
-                    default: s3-bucket-name
+                    description: Ingestion pipeline name
+                    default: demo-rag-vector-db
+                  injection_pipeline_version:
+                    title: Ingestion Pipeline Version
+                    type: string
+                    description: Ingestion pipeline version
+                    default: 1.0
+                  access_key_id:
+                    title: Access Key ID
+                    type: string
+                    description: Minio access key id
+                    default: minio_user
+                  secret_access_key:
+                    title: Secret Access Key
+                    type: string
+                    description: Minio secret access key
+                    default: minio_password
+                  bucket_name:
+                    title: Bucket Name
+                    type: string
+                    description: Minio bucket name
+                    default: documents
                   endpoint_url:   
                     title: Endpoint URL
                     type: string
-                    description: s3 endpoint url
-                    default: https://s3.amazonaws.com
+                    description: Endpoint URL
+                    default: http://minio:9000
                   region:
                     title: Region
                     type: string

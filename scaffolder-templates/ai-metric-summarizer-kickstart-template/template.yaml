@@ -109,11 +109,9 @@ spec:
           title: Model
           type: string
           description: choose your LLM model
-          default: llama-3-2-1b-instruct
+          default: llama-3-2-3b-instruct
           enum:
-            - llama-3-2-1b-instruct
             - llama-3-2-3b-instruct
-            - llama-3-3-70b-instruct
         llm_toleration:
           title: LLM Toleration
           type: string
@@ -174,7 +172,7 @@ spec:
       name: Fetch AI Observability Metrics Summarizer-kickstart
       action: fetch:plain
       input:
-        url: https://github.com/rh-ai-kickstart/AI-Observability-Metric-Summarizer
+        url: https://github.com/rh-ai-kickstart/AI-Observability-Metric-Summarizer/tree/test
         targetPath: ./tenant
         copyWithoutTemplating:
           - "**/*.jinja"
@@ -183,7 +181,7 @@ spec:
       name: Fetch AI Observability Metrics Summarizer-kickstart Helm Chart
       action: fetch:plain
       input:
-        url: https://github.com/rh-ai-kickstart/AI-Observability-Metric-Summarizer/tree/main/deploy
+        url: https://github.com/rh-ai-kickstart/AI-Observability-Metric-Summarizer/tree/test/deploy
         targetPath: ./tenant-gitops
         copyWithoutTemplating:
           - "**/*.jinja"
