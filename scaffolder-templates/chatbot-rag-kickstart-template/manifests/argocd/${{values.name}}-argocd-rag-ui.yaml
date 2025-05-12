@@ -11,17 +11,19 @@ spec:
   source:
     repoURL: ${{values.repoURL}}
     targetRevision: HEAD
-    path: ./helm/rag-ui
+    path: ./helm/rag
     helm:
       valueFiles:
         - values.yaml
       parameters:
-        - name: llama-stack.models.${{ values.llm }}.enabled
+        - name: global.models.${{ values.llm }}.enabled
           value: "true"
-        - name: llama-stack.models.${{ values.safety }}.enabled
+        - name: global.models.${{ values.safety }}.enabled
           value: "${{ values.enable_safety }}"
         - name: llama-stack.mcp-servers.weather.uri
           value: "http://${{ values.name }}-mcp-servers-weather:8000/sse"
+        - name: llm-service.secret.enabled
+          value: "false"
   destination:
     server: https://kubernetes.default.svc
     namespace: ${{ values.namespace }}
