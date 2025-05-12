@@ -20,7 +20,7 @@ spec:
           value: "true"
         - name: global.models.${{ values.safety }}.enabled
           value: "${{ values.enable_safety }}"
-        - name: llama-stack.mcp-servers.weather.uri
+        - name: llama-stack.mcp-servers.mcp-weather.uri
           value: "http://${{ values.name }}-mcp-servers-weather:8000/sse"
         - name: llm-service.secret.enabled
           value: "false"
