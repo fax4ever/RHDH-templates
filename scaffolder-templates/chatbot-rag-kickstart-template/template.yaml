@@ -160,6 +160,7 @@ spec:
           type: boolean
           description: Enable ingestion pipeline
           default: true
+          ui:disabled: true
       dependencies:
         enable_document_ingestion:
           allOf:
@@ -179,7 +180,7 @@ spec:
                     title: Ingestion Pipeline Version
                     type: string
                     description: Ingestion pipeline version
-                    default: 1.0
+                    default: "1.0"
                     ui:disabled: true
                   access_key_id:
                     title: Access Key ID
@@ -362,7 +363,7 @@ spec:
       input:
         appName: ${{ parameters.name }}-bootstrap
         argoInstance: ${{ parameters.argoInstance }}
-        namespace: openshift-gitops
+        namespace: janus-argocd
         repoUrl: https://${{ parameters.githubServer if parameters.hostType === 'GitHub' else parameters.gitlabServer }}/${{ parameters.repoOwner }}/${{ parameters.repoName }}-gitops.git
         path: 'argocd/'
     
