@@ -7,7 +7,7 @@ metadata:
   annotations:
     argocd/app-selector: rht-gitops.com/janus-argocd=${{values.component_id}}-bootstrap
     backstage.io/source-location: url:https://${{values.host}}/${{values.destination}}
-    gitlab.com/project-slug: ${{ (values.destination }}
+    gitlab.com/project-slug: ${{ values.destination }}
     backstage.io/techdocs-ref: url:https://${{values.host}}/${{values.destination}}
 spec:
   type: service
