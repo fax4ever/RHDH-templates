@@ -101,7 +101,7 @@ spec:
                 gitlabServer:
                   title: Repository Server
                   type: string
-                  default: gitlab.com
+                  default: {{ gitlab_host}}
                   ui:help: "You can also provide the on-prem gitlab server, example: gitlab-gitlab.apps.cluster-ljg9z.sandbox219.opentlc.com"
   
     - title: Select Language model
