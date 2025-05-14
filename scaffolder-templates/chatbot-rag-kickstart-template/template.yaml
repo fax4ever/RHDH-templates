@@ -275,7 +275,7 @@ spec:
       action: fetch:template
       input:
         url: ./manifests/helm/templates
-        targetPath: ./tenant-gitops/helm/rags/templates
+        targetPath: ./tenant-gitops/helm/rag/templates
         copyWithoutTemplating:
           - '**/*.jinja'
           - '**/*.jinja2'
