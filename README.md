@@ -9,9 +9,7 @@ This guide walks you through using [RHEcosystemAppEng/RHDH-templates](https://gi
 - Access to a running RHDH instance  
   👉 [https://redhat-developer-hub-openshift-gitops.apps.gpu.osdu.opdev.io](https://redhat-developer-hub-openshift-gitops.apps.gpu.osdu.opdev.io)
 - Access to GitHub and permission to use the `RHEcosystemAppEng/RHDH-templates` repository
-
-
-To use Hugging Face, a token must be securely provided. You can do this with or without Vault:
+- To use **Hugging Face**, a token must be securely provided. You can do this with or without Vault:
 
 ---
 
