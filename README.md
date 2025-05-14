@@ -9,13 +9,50 @@ This guide walks you through using [RHEcosystemAppEng/RHDH-templates](https://gi
 - Access to a running RHDH instance  
   👉 [https://redhat-developer-hub-openshift-gitops.apps.gpu.osdu.opdev.io](https://redhat-developer-hub-openshift-gitops.apps.gpu.osdu.opdev.io)
 - Access to GitHub and permission to use the `RHEcosystemAppEng/RHDH-templates` repository
-- Requires a secret to be defined that provides the [Hugging Face Token](https://huggingface.co/)
-  - Manually create a Kubernetes Secret or create a secret using a secure secret solution such as Vault
-    ````
-    export HF_TOKEN=<hf token>
 
-    kubectl create secret generic huggingface-secret -n <The namespace where the application will be deployed> --from-literal=HF_TOKEN=$HF_TOKEN
-    ````
+
+To use Hugging Face, a token must be securely provided. You can do this with or without Vault:
+
+---
+
+## 🔓 Without Vault
+Manually create a Kubernetes Secret:
+
+```bash
+export HF_TOKEN=<your huggingface token>
+kubectl create secret generic huggingface-secret \
+  -n <your-namespace> \
+  --from-literal=HF_TOKEN=$HF_TOKEN
+```
+
+Or use another secure secrets solution.
+
+---
+
+## 🔐 With Vault + External Secrets Operator
+
+1. **Log in to Vault**:
+   - Get the Vault route:
+     ```bash
+     oc get route -n vault
+     ```
+   - Retrieve the Vault token:
+     ```bash
+     oc get secret -n vault vault-token -o jsonpath="{.data.token}" | base64 --decode
+     ```
+
+2. **Manually create the secret in the Vault UI**:
+   - Select the **KV** secret engine
+   - Navigate to the path: `secret/janusidp`
+   - On the right-hand panel, click **"Create secret"**
+   - Specify the path as: `dhtemplate` (which becomes `secret/janusidp/dhtemplate`)
+   - Under "Secret Data":
+     - **Key**: `token`
+     - **Value**: your Hugging Face token
+   - Click **Save**
+
+  **The ExternalSecret will map `token` → Kubernetes key `HF_TOKEN`**
+
 ---
 
 ## 🚀 Step-by-Step Instructions
