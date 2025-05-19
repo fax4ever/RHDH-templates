@@ -174,7 +174,7 @@ spec:
                     title: Ingestion Pipeline Name
                     type: string
                     description: Ingestion pipeline name
-                    default: rag_vector-db
+                    default: zippity-zoo-vector-db
                     ui:disabled: true
                   injection_pipeline_version:
                     title: Ingestion Pipeline Version
@@ -186,13 +186,13 @@ spec:
                     title: Access Key ID
                     type: string
                     description: Minio access key id
-                    default: minio_user
+                    default: minio_rag_user
                     ui:disabled: true
                   secret_access_key:
                     title: Secret Access Key
                     type: string
                     description: Minio secret access key
-                    default: minio_password
+                    default: minio_rag_password
                     ui:disabled: true
                   bucket_name:
                     title: Bucket Name
