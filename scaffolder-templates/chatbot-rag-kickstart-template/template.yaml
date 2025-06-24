@@ -52,7 +52,7 @@ spec:
             catalogFilter:
               kind: [Group, User]
               readonly: false
-    
+
     - title: Application Repository Location
       required:
         - hostType
@@ -103,8 +103,8 @@ spec:
                   type: string
                   default: gitlab.com
                   ui:help: "You can also provide the on-prem gitlab server, example: gitlab-gitlab.apps.cluster-ljg9z.sandbox219.opentlc.com"
-  
-    - title: Select Language model
+
+    - title: Select Language Model
       required:
         - llm
       properties:
@@ -114,15 +114,15 @@ spec:
           description: choose your LLM model
           default: llama-3-2-1b-instruct
           enum:
-          - llama-3-2-1b-instruct
-          - llama-3-2-3b-instruct
-          - llama-3-3-70b-instruct
+            - llama-3-2-1b-instruct
+            - llama-3-2-3b-instruct
+            - llama-3-3-70b-instruct
         llm_toleration:
           title: LLM Toleration
           type: string
           description: LLM toleration
           default: nvidia.com/gpu
-    - title: Select Safety Model 
+    - title: Select Safety Model
       properties:
         enableSafety:
           title: Enable Safety
@@ -153,65 +153,50 @@ spec:
                     default: nvidia.com/gpu
                 required:
                   - safety
-    - title: Configure ingestion pipeline
+    - title: Default Ingestion Pipeline
       properties:
-        enable_document_ingestion:
-          title: Enable ingestion pipeline
-          type: boolean
-          description: Enable ingestion pipeline
-          default: true
+        injection_pipeline_name:
+          title: Ingestion Pipeline Name
+          type: string
+          description: Ingestion pipeline name
+          default: zippity-zoo-vector-db
           ui:disabled: true
-      dependencies:
-        enable_document_ingestion:
-          allOf:
-            - if:
-                properties:
-                  enable_document_ingestion:
-                    const: true
-              then:
-                properties:
-                  injection_pipeline_name:
-                    title: Ingestion Pipeline Name
-                    type: string
-                    description: Ingestion pipeline name
-                    default: zippity-zoo-vector-db
-                    ui:disabled: true
-                  injection_pipeline_version:
-                    title: Ingestion Pipeline Version
-                    type: string
-                    description: Ingestion pipeline version
-                    default: v1.0
-                    ui:disabled: true
-                  access_key_id:
-                    title: Access Key ID
-                    type: string
-                    description: Minio access key id
-                    default: minio_rag_user
-                    ui:disabled: true
-                  secret_access_key:
-                    title: Secret Access Key
-                    type: string
-                    description: Minio secret access key
-                    default: minio_rag_password
-                    ui:disabled: true
-                  bucket_name:
-                    title: Bucket Name
-                    type: string
-                    description: Minio bucket name
-                    default: documents
-                    ui:disabled: true
-                  endpoint_url:   
-                    title: Endpoint URL
-                    type: string
-                    description: Endpoint URL
-                    default: http://minio:9000
-                    ui:disabled: true
-                  region:
-                    title: Region
-                    type: string
-                    description: s3 region
-                    default: us-east-1
-                    ui:disabled: true
+        injection_pipeline_version:
+          title: Ingestion Pipeline Version
+          type: string
+          description: Ingestion pipeline version
+          default: v1.0
+          ui:disabled: true
+        access_key_id:
+          title: Access Key ID
+          type: string
+          description: Minio access key id
+          default: minio_rag_user
+          ui:disabled: true
+        secret_access_key:
+          title: Secret Access Key
+          type: string
+          description: Minio secret access key
+          default: minio_rag_password
+          ui:disabled: true
+        bucket_name:
+          title: Bucket Name
+          type: string
+          description: Minio bucket name
+          default: documents
+          ui:disabled: true
+        endpoint_url:
+          title: Endpoint URL
+          type: string
+          description: Endpoint URL
+          default: http://minio:9000
+          ui:disabled: true
+        region:
+          title: Region
+          type: string
+          description: s3 region
+          default: us-east-1
+          ui:disabled: true
     - title: Application Namespace
       required:
         - namespace
@@ -238,8 +223,8 @@ spec:
         url: https://github.com/rh-ai-kickstart/RAG
         targetPath: ./tenant
         copyWithoutTemplating:
-          - '**/*.jinja'
-          - '**/*.jinja2'
+          - "**/*.jinja"
+          - "**/*.jinja2"
     - id: deleteFiles
       name: Delete unwanted files
       action: fs:delete
@@ -254,8 +239,8 @@ spec:
         url: https://github.com/rh-ai-kickstart/RAG/tree/main/deploy
         targetPath: ./tenant-gitops
         copyWithoutTemplating:
-          - '**/*.jinja'
-          - '**/*.jinja2'
+          - "**/*.jinja"
+          - "**/*.jinja2"
     - id: fetch-skeleton
       name: Fetch catalog-info from local Template
       action: fetch:template
@@ -263,8 +248,8 @@ spec:
         url: ./skeleton
         targetPath: ./tenant-gitops
         copyWithoutTemplating:
-          - '**/*.jinja'
-          - '**/*.jinja2'
+          - "**/*.jinja"
+          - "**/*.jinja2"
         values:
           name: ${{ parameters.name }}
           description: Deploy RAG Chatbot using LLaMA Stack, OpenShift AI, and PGVector
@@ -278,8 +263,8 @@ spec:
         url: ./manifests/helm/templates
         targetPath: ./tenant-gitops/helm/rag/templates
         copyWithoutTemplating:
-          - '**/*.jinja'
-          - '**/*.jinja2'
+          - "**/*.jinja"
+          - "**/*.jinja2"
     - id: fetch-argocd
       name: Fetch Argo CD Resources from Local Template
       action: fetch:template
@@ -287,8 +272,8 @@ spec:
         url: ./manifests/argocd
         targetPath: ./tenant-gitops/argocd
         copyWithoutTemplating:
-          - '**/*.jinja'
-          - '**/*.jinja2'
+          - "**/*.jinja"
+          - "**/*.jinja2"
         values:
           name: ${{ parameters.name }}
           namespace: ${{ parameters.namespace }}
@@ -312,7 +297,7 @@ spec:
       input:
         repoUrl: ${{ parameters.githubServer }}?owner=${{ parameters.repoOwner }}&repo=${{ parameters.repoName }}
         sourcePath: ./tenant
-        allowedHosts: ['${{ parameters.githubServer }}']
+        allowedHosts: ["${{ parameters.githubServer }}"]
         description: This is source repository for ${{ parameters.name }}
         namespace: ${{ parameters.namespace }}
         repoVisibility: "public"
@@ -325,7 +310,7 @@ spec:
       input:
         repoUrl: ${{ parameters.gitlabServer }}?owner=${{ parameters.repoOwner }}&repo=${{ parameters.repoName }}
         sourcePath: ./tenant
-        allowedHosts: ['${{ parameters.gitlabServer }}']
+        allowedHosts: ["${{ parameters.gitlabServer }}"]
         description: This is source repository for ${{ parameters.name }}
         namespace: ${{ parameters.namespace }}
         repoVisibility: "public"
@@ -338,7 +323,7 @@ spec:
       input:
         repoUrl: ${{ parameters.githubServer }}?owner=${{ parameters.repoOwner }}&repo=${{ parameters.repoName }}-gitops
         sourcePath: ./tenant-gitops
-        allowedHosts: ['${{ parameters.githubServer }}']
+        allowedHosts: ["${{ parameters.githubServer }}"]
         description: This is GitOps repository for ${{ parameters.name }}
         repoVisibility: "public"
         defaultBranch: "main"
@@ -350,22 +335,22 @@ spec:
       input:
         repoUrl: ${{ parameters.gitlabServer }}?owner=${{ parameters.repoOwner }}&repo=${{ parameters.repoName }}-gitops
         sourcePath: ./tenant-gitops
-        allowedHosts: ['${{ parameters.gitlabServer }}']
+        allowedHosts: ["${{ parameters.gitlabServer }}"]
         description: This is GitOps repository for ${{ parameters.name }}
         namespace: ${{ parameters.namespace }}
         repoVisibility: "public"
         defaultBranch: "main"
-        protectDefaultBranch: false    
+        protectDefaultBranch: false
     - id: wait-for-github-repository
       name: Waiting for Repository Availability
-      action: 'debug:wait'
+      action: "debug:wait"
       input:
         seconds: 3
     - id: register
       name: Register
       action: catalog:register
       input:
-        repoContentsUrl:  ${{ steps['publish-github-gitops'].output.repoContentsUrl if steps['publish-github-gitops'].output else steps['publish-gitlab-gitops'].output.repoContentsUrl }}
+        repoContentsUrl: ${{ steps['publish-github-gitops'].output.repoContentsUrl if steps['publish-github-gitops'].output else steps['publish-gitlab-gitops'].output.repoContentsUrl }}
         catalogInfoPath: "/catalog-info.yaml"
     - id: create-argocd-resources
       name: Create ArgoCD Resources
@@ -375,8 +360,8 @@ spec:
         argoInstance: ${{ parameters.argoInstance }}
         namespace: janus-argocd
         repoUrl: https://${{ parameters.githubServer if parameters.hostType === 'GitHub' else parameters.gitlabServer }}/${{ parameters.repoOwner }}/${{ parameters.repoName }}-gitops.git
-        path: 'argocd/'
-    
+        path: "argocd/"
+
   output:
     links:
       # SED_APP_SUPPORT_START

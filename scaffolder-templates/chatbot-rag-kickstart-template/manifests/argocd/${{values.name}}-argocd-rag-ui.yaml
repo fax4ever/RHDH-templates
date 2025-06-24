@@ -32,6 +32,18 @@ spec:
       jqPathExpressions:
         - '.imagePullSecrets[] | select(.name | contains("-dockercfg-"))'
       kind: ServiceAccount
+    - group: kubeflow.org
+      jqPathExpressions:
+        - '.spec.template.spec.containers[] | select(.name == "oauth-proxy")'
+        - '.spec.template.spec.volumes[] | select(.name | IN("trusted-ca", "oauth-config", "tls-certificates"))'
+        - '.spec.template.spec.containers[] | select(.name != "oauth-proxy").env[] | select(.name | IN("PIP_CERT", "REQUESTS_CA_BUNDLE", "SSL_CERT_FILE", "PIPELINES_SSL_SA_CERTS", "GIT_SSL_CAINFO"))'
+        - '.spec.template.spec.containers[] | select(.name != "oauth-proxy").volumeMounts[] | select(.name == "trusted-ca")'
+      kind: Notebook
+    - group: route.openshift.io
+      jsonPointers:
+        - /metadata/annotations/openshift.io~1host.generated
+        - /spec/alternateBackends
+      kind: Route
   syncPolicy:
     automated:
       prune: true
