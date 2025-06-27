@@ -3,8 +3,8 @@ apiVersion: scaffolder.backstage.io/v1beta3
 kind: Template
 # This template is used to create a chatbot rag kickstart using llamastack with vllm
 metadata:
-  name: ai-virtual-agent-kickstart-template
-  title: Deploy AI Virtual Agent using OpenShift AI, and PGVector via GitOps
+  name: virtual-agent-kickstart-template
+  title: AI Virtual Agent using OpenShift AI, and PGVector via GitOps
   description: This template will ask some basic information about your application and create a GitOps repository with the necessary resources to deploy the AI Virtual Agent application using OpenShift AI, and PGVector.
     - ai
     - virtual-agent
@@ -36,7 +36,7 @@ spec:
         title: Name
         type: string
         description: Unique identifier for the component
-        default: ai-virtual-agent-app
+        default: virtual-agent
         ui:autofocus: true
         ui:options:
           rows: 5
@@ -211,7 +211,7 @@ spec:
         title: Namespace
         type: string
         description: The namespace where the application will be deployed
-        default: ai-virtual-agent-ns
+        default: ai-agent
   - title: Argo CD Configuration
     required:
       - argoInstance

@@ -2,7 +2,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: ${{ values.name }}-rag-ui
+  name: ${{ values.name }}
   namespace: janus-argocd
   finalizers:
     - resources-finalizer.argocd.argoproj.io
