@@ -11,7 +11,7 @@ spec:
   source:
     repoURL: ${{values.repoURL}}
     targetRevision: HEAD
-    path: ./helm/rag
+    path: ./helm/ai-virtual-assistant
     helm:
       valueFiles:
         - values.yaml
