@@ -36,7 +36,7 @@ spec:
         title: Name
         type: string
         description: Unique identifier for the component
-        default: ai_virtual_agent-app
+        default: ai-virtual-agent-app
         ui:autofocus: true
         ui:options:
           rows: 5
@@ -80,7 +80,7 @@ spec:
       repoName:
         title: Repository Name
         type: string
-        default: ai_virtual_agent-app
+        default: ai-virtual-agent-app
       branch:
         title: Repository Default Branch
         type: string
@@ -211,7 +211,7 @@ spec:
         title: Namespace
         type: string
         description: The namespace where the application will be deployed
-        default: ai_virtual_agent-ns
+        default: ai-virtual-agent-ns
   - title: Argo CD Configuration
     required:
       - argoInstance
@@ -268,7 +268,7 @@ spec:
       action: fetch:template
       input:
         url: ./manifests/helm/templates
-        targetPath: ./tenant-gitops/helm/rag/templates
+        targetPath: ./tenant-gitops/helm/ai-virtual-assistant/templates
         copyWithoutTemplating:
           - "**/*.jinja"
           - "**/*.jinja2"
