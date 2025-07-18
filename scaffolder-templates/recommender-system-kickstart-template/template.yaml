@@ -128,4 +128,10 @@ spec:
       input:
         url: https://github.com/rh-ai-kickstart/product-recommender-system
         targetPath: ./tenant
+    - id: deleteFiles
+      name: Delete unwanted files
+      action: fs:delete
+      input:
+        files:
+          - ./tenant/.github
 
