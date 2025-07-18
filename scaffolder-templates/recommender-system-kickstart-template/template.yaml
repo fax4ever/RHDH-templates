@@ -134,4 +134,10 @@ spec:
       input:
         files:
           - ./tenant/.github
+    - id: fetch-recommender-system-kickstart-helm
+      name: Fetch recommender-system-kickstart Helm Chart
+      action: fetch:plain
+      input:
+        url: https://github.com/rh-ai-kickstart/product-recommender-system/tree/main/helm
+        targetPath: ./tenant-gitops
 
